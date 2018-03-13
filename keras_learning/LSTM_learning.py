@@ -14,7 +14,7 @@ def create_dataset(dataset, TIME_SQARE=1):
         a = dataset[i:(i+TIME_SQARE), 0]
         dataX.append(a)
         dataY.append(dataset[i + TIME_SQARE, 0])
-    return np.array(dataX), np.array(dataY) 
+    return np.array(dataX), np.array(dataY)
 
 dataframe = read_csv('monthly-car-sales-in-quebec-1960.csv', usecols=[1], engine='python', skipfooter=3)
 dataset = dataframe.values
