@@ -1,6 +1,7 @@
 import numpy as np
 from keras.layers import LSTM
 from keras.layers import Dense
+from keras.layers import Dropout
 from keras.models import Sequential
 from pandas import read_csv
 import matplotlib.pyplot as plt
@@ -38,6 +39,7 @@ X_test = np.reshape(X_test,(X_test.shape[0],TIME_SQARE,1))
 
 model = Sequential()
 model.add(LSTM(12,input_shape=(TIME_SQARE,1)))
+model.add(Dropout(0.2))
 model.add(Dense(6))
 model.add(Dense(1))
 model.compile(loss='mean_squared_error', optimizer='adam')
