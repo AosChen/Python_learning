@@ -29,7 +29,7 @@ train_size = int(len(dataset) * 0.67)
 test_size = len(dataset) - train_size
 train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
 
-TIME_SQARE = 3
+TIME_SQARE = 5
 X_train,y_train = create_dataset(train,TIME_SQARE)
 X_test,y_test = create_dataset(test,TIME_SQARE)
 
@@ -37,10 +37,11 @@ X_train = np.reshape(X_train,(X_train.shape[0],1,X_train.shape[1]))
 X_test = np.reshape(X_test,(X_test.shape[0],1,X_test.shape[1]))
 
 model = Sequential()
-model.add(LSTM(4,input_shape=(1,TIME_SQARE)))
+model.add(LSTM(12,input_shape=(1,TIME_SQARE)))
+model.add(Dense(6))
 model.add(Dense(1))
-model.compile(loss='mean_squared_error', optimizer='adam',metrics=['accuracy'])
-model.fit(X_train, y_train, epochs=100, batch_size=5, verbose=2)
+model.compile(loss='mean_squared_error', optimizer='adam')
+model.fit(X_train, y_train, epochs=500, batch_size=5, verbose=2)
 
 trainPredict = model.predict(X_train)
 testPredict = model.predict(X_test)
