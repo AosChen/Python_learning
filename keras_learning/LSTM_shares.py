@@ -25,7 +25,7 @@ datas = scaler.fit_transform(datas)
 
 np.random.seed(7)
 
-TIME_SQARE = 5
+TIME_SQARE = 10
 
 train_size = int(len(datas) * 0.8)
 test_size = len(datas) - train_size
@@ -43,7 +43,7 @@ model.add(Dropout(0.2))
 model.add(Dense(6))
 model.add(Dense(1))
 model.compile(loss='mean_squared_error', optimizer='adam')
-model.fit(X_train, y_train, epochs=100, batch_size=5, verbose=2)
+model.fit(X_train, y_train, epochs=50, batch_size=5, verbose=2)
 
 trainPredict = model.predict(X_train)
 testPredict = model.predict(X_test)
