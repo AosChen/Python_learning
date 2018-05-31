@@ -23,7 +23,7 @@ dataset.astype('float32')
 scaler = MinMaxScaler(feature_range=(0, 1))
 dataset = scaler.fit_transform(dataset)
 
-np.random.seed(7)
+# np.random.seed(7)
 
 train_size = int(len(dataset) * 0.67)
 test_size = len(dataset) - train_size
