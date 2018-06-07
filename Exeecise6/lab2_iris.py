@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from BP import BP
+from .BP import BP
 
 iris = pd.read_csv('data/iris.txt', header=None)
 iris[4] = iris[4].replace({'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2})

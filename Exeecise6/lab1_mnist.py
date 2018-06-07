@@ -1,5 +1,5 @@
 import pandas as pd
-from BP import BP
+from .BP import BP
 
 
 data = pd.read_excel('data/数字1~9.xlsx', header=None)
