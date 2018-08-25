@@ -1,11 +1,12 @@
 #  本py文件的作用是绘制cdf图，其输入要求为csv文件，csv文件用','隔开，且每一行代表一条cdf曲线
 import matplotlib.pyplot as plt
 
-Title = ['20-30km/h Straight cdf', '40-60km/h Straight cdf', 'Spiral cdf']
+Title = ['20-30km/h Straight cdf', '40-60km/h Straight cdf', 'Turn cdf']
 # filename = r'D:\研究所\惯导安卓\data\0710\直角 my.csv'  # CSV文件路径
-filenames = [r'D:\研究所\惯导安卓\data\0725\20-30.csv', r'D:\研究所\惯导安卓\data\0725\40-60.csv', r'D:\研究所\惯导安卓\data\0725\盘旋.csv']
+# filenames = [r'D:\研究所\重点研究计划\data\0822\20-30.csv', r'D:\研究所\重点研究计划\data\0822\40-60.csv', r'D:\研究所\重点研究计划\data\0822\转弯.csv']
     # , r'D:\研究所\惯导安卓\data\0710\直角.csv', r'D:\研究所\惯导安卓\data\0725\盘旋.csv']
 file_lines = []
+filenames = [r'D:\Project\Python\Python_learning\VDR\eular_error.csv']
 
 for filename in filenames:
     with open(filename, 'r') as f:
