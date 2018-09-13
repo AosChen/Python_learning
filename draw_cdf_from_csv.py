@@ -1,12 +1,13 @@
 #  本py文件的作用是绘制cdf图，其输入要求为csv文件，csv文件用','隔开，且每一行代表一条cdf曲线
 import matplotlib.pyplot as plt
 
-Title = ['20-30km/h Straight cdf', '40-60km/h Straight cdf', 'Turn cdf']
+# Title = ['20-30km/h Straight cdf', '40-60km/h Straight cdf', 'Turn cdf', 'Sprial cdf']
+Title = ['5s_GPS_blocked_cdf', '40-60km/h Straight cdf', 'Turn cdf', 'Sprial cdf']
 # filename = r'D:\研究所\惯导安卓\data\0710\直角 my.csv'  # CSV文件路径
-# filenames = [r'D:\研究所\重点研究计划\data\0822\20-30.csv', r'D:\研究所\重点研究计划\data\0822\40-60.csv', r'D:\研究所\重点研究计划\data\0822\转弯.csv']
-    # , r'D:\研究所\惯导安卓\data\0710\直角.csv', r'D:\研究所\惯导安卓\data\0725\盘旋.csv']
+# DIR = r'D:\研究所\惯导安卓\data\0710'
+# filenames = [DIR + r'\20-30.csv', DIR + r'\40-60.csv', DIR + r'\转弯.csv', DIR + r'\Sprial.csv']
 file_lines = []
-filenames = [r'D:\Project\Python\Python_learning\VDR\eular_error.csv']
+filenames = [r'D:\研究所\重点研究计划\data\0824\distance_test.csv']
 
 for filename in filenames:
     with open(filename, 'r') as f:
@@ -39,7 +40,7 @@ dataSets = temps
 
 j = 0
 for dataSet in dataSets:
-    plt.subplot(220+j+1)
+    # plt.subplot(220+j+1)
     plt.title(Title[j])
     plt.grid(True)
     for set in dataSet:
