@@ -14,7 +14,6 @@ loader = Data.DataLoader(
     dataset=torch_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=2
 )
 
 for epoch in range(3):
