@@ -1,10 +1,11 @@
 import numpy as np
 import math
+import csv
 
 from VDR.Kalman_Filter.EKF import EKF
 from VDR.Kalman_Filter.Smooth import Smooth
 
-from VDR.Kalman_Filter.KF_NN import *
+from VDR.Kalman_Filter.KF_NN.KF_NN import *
 
 rad2deg = 57.295780490442968321226628812406
 deg2rad = 0.01745329237161968996669562749648
@@ -78,8 +79,9 @@ class IntegratedLocation(object):
         self.kf = EKF()
         self.smooth = Smooth(smooth_size)
         self.KF_NN = KalmanFilter_NN()
+        self.get_change = csv.writer(open(r'D:\研究所\重点研究计划\data\1015\change_file.csv', 'w', newline=''))
 
-    def deal_data(self, datas, Changed, do_NN=False):
+    def deal_data(self, datas, Changed, RTK):
         ax, ay, az = -(datas[0] - self.accCalStc_X), -(datas[1] - self.accCalStc_Y), -(datas[2] - self.accCalStc_Z)
         lax, lay, laz = -datas[3], -datas[4], -datas[5]
         gx, gy, gz = -datas[6], -datas[7], -datas[8]
@@ -116,8 +118,8 @@ class IntegratedLocation(object):
                 self.Yaw -= 360
             if self.Yaw < 0:
                 self.Yaw == 360
-            delta_Yaw = ag * self.samplePeriod
-            INPUT_Yaw = self.Yaw
+            # delta_Yaw = ag * self.samplePeriod
+            # INPUT_Yaw = self.Yaw
             self.Rm = earthRe * (1 - 2 * earthf + 3 * earthf * math.sin(self.last_L) * math.sin(self.last_L))
             self.Rn = earthRe * (1 + earthf * math.sin(self.last_L) * math.sin(self.last_L))
 
@@ -143,7 +145,7 @@ class IntegratedLocation(object):
             isUsed = True
             if GPSv == 0 and GPSYaw == 0:
                 isUsed = False
-            INPUT = torch.tensor([delta_Vx, delta_Vy, delta_Px, delta_Py, INPUT_Yaw, delta_Yaw])
+            # INPUT = torch.tensor([delta_Vx, delta_Vy, delta_Px, delta_Py, INPUT_Yaw, delta_Yaw])
             if GPSHDOP < 3.0 and Changed and isUsed:
                 self.GPSVe = GPSv * math.sin(GPSYaw * deg2rad)
                 self.GPSVn = GPSv * math.cos(GPSYaw * deg2rad)
@@ -163,9 +165,13 @@ class IntegratedLocation(object):
                                                self.L, self.h, self.mahonyR,
                                                self.Fn, self.tao, self.Rm, self.Rn)
 
-                Lat_delta, Lot_delta = self.L - GPSLatitude, self.E - GPSLongitude
-                distance1 = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
-                                                   math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
+                # Lat_delta, Lot_delta = self.L - GPSLatitude, self.E - GPSLongitude
+                # distance1 = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
+                #                                    math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
+                if datas[-1] in RTK.keys():
+                    Lat_delta, Lot_delta = self.L - deg2rad * RTK[datas[-1]][1], self.E - deg2rad * RTK[datas[-1]][0]
+                    distance1 = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
+                                                       math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
 
                 self.lastVx -= XX[3, 0]
                 self.lastVy -= XX[4, 0]
@@ -183,34 +189,20 @@ class IntegratedLocation(object):
 
                 self.lastGPSh = GPSHeight
 
-                Lat_delta, Lot_delta = self.L - GPSLatitude, self.E - GPSLongitude
-                distance = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
-                                                   math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
-                print(distance1, distance)
-                TARGET = [-XX[3, 0], -XX[4, 0], -XX[7, 0], -XX[6, 0], GPSYaw, GPSYaw - self.Yaw]
-                if distance >= 10:
-                    TARGET = [self.lastVx - self.GPSVe, self.lastVy - self.GPSVn, self.E - GPSLongitude,
-                              self.L - GPSLatitude, GPSYaw, GPSYaw - self.Yaw]
-                    self.E, self.L, self.h, self.Yaw = GPSLongitude, GPSLatitude, GPSHeight, GPSYaw
-                    self.lastVx, self.lastVy, self.lastVz = self.GPSVe, self.GPSVn, self.GPSVu
-                # TARGET = torch.tensor(TARGET)
-                # loss_function = nn.MSELoss()
-                # optimizier = optim.Adam(self.KF_NN.parameters(), lr=0.01)
-                # OUTPUT = self.KF_NN(INPUT)
-                # loss = loss_function(OUTPUT, TARGET)
-                # optimizier.zero_grad()
-                # loss.backward()
-                # print('loss is ' + str(loss))
-                # optimizier.step()
+                # Lat_delta, Lot_delta = self.L - GPSLatitude, self.E - GPSLongitude
+                # distance = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
+                #                                    math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
+                if datas[-1] in RTK.keys():
+                    Lat_delta, Lot_delta = self.L - deg2rad * RTK[datas[-1]][1], self.E - deg2rad * RTK[datas[-1]][0]
+                    distance = 2 * math.asin(math.sqrt(pow(math.sin(Lat_delta / 2), 2) + math.cos(self.L) *
+                                                    math.cos(GPSLatitude) * pow(math.sin(Lot_delta / 2), 2))) * earthRe
+                    print(distance1, distance)
+                    self.get_change.writerow([distance1, distance])
+                # if distance >= 10:
+                self.E, self.L, self.h, self.Yaw = GPSLongitude, GPSLatitude, GPSHeight, GPSYaw
+                self.lastVx, self.lastVy, self.lastVz = self.GPSVe, self.GPSVn, self.GPSVu
             elif GPSHDOP >= 3.0:
                 self.GPSOff = 1
-            if do_NN:
-                output = self.KF_NN(INPUT)
-                self.lastVx -= output[0].item()
-                self.lastVy -= output[1].item()
-                self.L -= output[3].item()
-                self.E -= output[2].item()
-                self.Yaw = output[4].item()
             self.last_L = self.L
             self.last_h = self.h
 

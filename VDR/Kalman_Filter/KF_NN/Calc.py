@@ -4,7 +4,7 @@ import math
 from VDR.Kalman_Filter.EKF import EKF
 from VDR.Kalman_Filter.Smooth import Smooth
 
-from VDR.Kalman_Filter.KF_NN import *
+from VDR.Kalman_Filter.KF_NN.KF_NN import *
 
 rad2deg = 57.295780490442968321226628812406
 deg2rad = 0.01745329237161968996669562749648

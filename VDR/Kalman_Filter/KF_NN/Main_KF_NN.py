@@ -2,7 +2,7 @@ import csv
 import copy
 import cdf
 import numpy as np
-from VDR.Kalman_Filter.Calc import Calc
+from VDR.Kalman_Filter.KF_NN.Calc import Calc
 from VDR.tools import distance_by_LoLa
 
 DIR = r'D:\研究所\重点研究计划\data\1015'

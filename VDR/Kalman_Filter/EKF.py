@@ -11,7 +11,7 @@ Q_wa = (0.5e-4 * G0) ** 2
 Tg = 300
 Ta = 1000
 Rlamt, Rl, Rh, Rvx, Rvy, Rvz = 1e-5 * deg2rad / 60, 1e-5 * deg2rad / 60, \
-                               1.0, 1e-7, 1e-7, 5e-9
+                               1e-5 * deg2rad / 60, 1e-7, 1e-7, 5e-9
 Q = np.diagflat([Q_wg] * 3 + [Q_wr] * 3 + [Q_wa] * 3)
 R = np.diagflat([Rlamt, Rl, Rh, Rvx, Rvy, Rvz])
 PP0k = [(1 / (36 * 57)) ** 2, (1 / (36 * 57)) ** 2, (1 / (36 * 57)) ** 2,
