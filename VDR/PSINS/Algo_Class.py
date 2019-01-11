@@ -1,5 +1,5 @@
-from VDR.PSINS_2017.tool import *
-import VDR.PSINS_2017.Parameter as pa
+from VDR.PSINS.tool import *
+import VDR.PSINS.Parameter as glv
 
 conefactors = [[2.0 / 3.0, 0.0, 0.0, 0.0],
                [9.0 / 20.0, 27.0 / 20.0, 0.0, 0.0],
@@ -21,14 +21,14 @@ class CEarth(object):
     gn = np.array([[0.0]] * 3)
     gcc = np.array([[0.0]] * 3)
 
-    def __init__(self, a0=pa.Re, f0=pa.f, g0=pa.g0):
+    def __init__(self, a0=glv.Re, f0=glv.f, g0=glv.g0):
         self.a = a0
         self.f = f0
-        self.wie = pa.wie0
+        self.wie = glv.wie0
         self.b = (1 - self.f) * self.a
         self.e = sqrt(self.a * self.a - self.b * self.b) / self.a
         self.e2 = self.e * self.e
-        self.gn = np.array([[0], [0], [-pa.g0]])
+        self.gn = np.array([[0], [0], [-glv.g0]])
 
     def Update(self, pos, vn=np.array([[0.0]] * 3)):
         self.pos = pos
@@ -49,7 +49,7 @@ class CEarth(object):
         self.wnin = self.wnie + self.wnen
         self.sl2 = self.sl * self.sl
         self.sl4 = self.sl2 * self.sl2
-        self.gn[2, 0] = -(pa.g0 * (1 + 5.27094e-3 * self.sl2 + 2.32718e-5 * self.sl4) - 3.086e-6 * pos[2, 0])
+        self.gn[2, 0] = -(glv.g0 * (1 + 5.27094e-3 * self.sl2 + 2.32718e-5 * self.sl4) - 3.086e-6 * pos[2, 0])
         self.gcc = self.gn - cross((self.wnie + self.wnin), vn)
 
     def vn2pos(self, vn, ts=1.0):
@@ -195,7 +195,7 @@ class CSINS(object):
         self.Mvv = Avn * self.Mav - askew(self.eth.wnie + self.eth.wnin)
         self.Mvp = Avn * (Mp1 + self.Map)
         scl = self.eth.sl * self.eth.cl
-        self.Mvp[2, 0] = self.Mvp[2, 0] - pa.g0 * (5.27094e-3 * 2 * scl + 2.32718e-5 * 4 * self.eth.sl2 * scl)
+        self.Mvp[2, 0] = self.Mvp[2, 0] - glv.g0 * (5.27094e-3 * 2 * scl + 2.32718e-5 * 4 * self.eth.sl2 * scl)
         self.Mvp[2, 2] = self.Mvp[2, 2] + 3.086e-6
         self.Mpv = np.mat([[0.0, f_RMh, 0.0],
                            [f_clRNh, 0.0, 0.0],
@@ -293,40 +293,40 @@ class CKalman(object):
     def Init(self, sins0):
         self.sins = sins0
         self.Pmax = np.array(
-            [[(10.0 * pa.deg) ** 2], [(10.0 * pa.deg) ** 2], [(30.0 * pa.deg) ** 2],
+            [[(10.0 * glv.deg) ** 2], [(10.0 * glv.deg) ** 2], [(30.0 * glv.deg) ** 2],
              [50 ** 2], [50 ** 2], [50 ** 2],
-             [(1.0e4 / pa.Re) ** 2], [(1.0e4 / pa.Re) ** 2], [1.0e4 ** 2],
-             [(10 * pa.dph) ** 2], [(10 * pa.dph) ** 2], [(10 * pa.dph) ** 2],
-             [(10 * pa.mg) ** 2], [(10 * pa.mg) ** 2], [(10 * pa.mg) ** 2]
+             [(1.0e4 / glv.Re) ** 2], [(1.0e4 / glv.Re) ** 2], [1.0e4 ** 2],
+             [(10 * glv.dph) ** 2], [(10 * glv.dph) ** 2], [(10 * glv.dph) ** 2],
+             [(10 * glv.mg) ** 2], [(10 * glv.mg) ** 2], [(10 * glv.mg) ** 2]
              ]
         )
         self.Pmin = np.array(
-            [[(0.01 * pa.min) ** 2], [(0.01 * pa.min) ** 2], [(0.1 * pa.min) ** 2],
+            [[(0.01 * glv.min) ** 2], [(0.01 * glv.min) ** 2], [(0.1 * glv.min) ** 2],
              [0.01 ** 2], [0.01 ** 2], [0.1 ** 2],
-             [(1.0 / pa.Re) ** 2], [(1.0 / pa.Re) ** 2], [0.1 ** 2],
-             [(0.001 * pa.dph) ** 2], [(0.001 * pa.dph) ** 2], [(0.001 * pa.dph) ** 2],
-             [(10 * pa.ug) ** 2], [(10 * pa.ug) ** 2], [(10 * pa.ug) ** 2]
+             [(1.0 / glv.Re) ** 2], [(1.0 / glv.Re) ** 2], [0.1 ** 2],
+             [(0.001 * glv.dph) ** 2], [(0.001 * glv.dph) ** 2], [(0.001 * glv.dph) ** 2],
+             [(10 * glv.ug) ** 2], [(10 * glv.ug) ** 2], [(10 * glv.ug) ** 2]
              ]
         )
         self.Pk = np.mat(np.diagflat(
-            [(1.0 * pa.deg) ** 2, (1.0 * pa.deg) ** 2, (10.0 * pa.deg) ** 2,
+            [(1.0 * glv.deg) ** 2, (1.0 * glv.deg) ** 2, (10.0 * glv.deg) ** 2,
              1.0, 1.0, 1.0,
-             (100.0 / pa.Re) ** 2, (100.0 / pa.Re) ** 2, 100.0 ** 2,
-             (1.0 * pa.dph) ** 2, (1.0 * pa.dph) ** 2, (1.0 * pa.dph) ** 2,
-             (1.0 * pa.mg) ** 2, (1.0 * pa.mg) ** 2, (1.0 * pa.mg) ** 2
+             (100.0 / glv.Re) ** 2, (100.0 / glv.Re) ** 2, 100.0 ** 2,
+             (1.0 * glv.dph) ** 2, (1.0 * glv.dph) ** 2, (1.0 * glv.dph) ** 2,
+             (1.0 * glv.mg) ** 2, (1.0 * glv.mg) ** 2, (1.0 * glv.mg) ** 2
              ])
         )
         self.Qt = np.array(
-            [[(0.001 * pa.dpsh) ** 2], [(0.001 * pa.dpsh) ** 2], [(0.001 * pa.dpsh) ** 2],
-             [(10.0 * pa.ugpsHz) ** 2], [(10.0 * pa.ugpsHz) ** 2], [(10.0 * pa.ugpsHz) ** 2],
+            [[(0.001 * glv.dpsh) ** 2], [(0.001 * glv.dpsh) ** 2], [(0.001 * glv.dpsh) ** 2],
+             [(10.0 * glv.ugpsHz) ** 2], [(10.0 * glv.ugpsHz) ** 2], [(10.0 * glv.ugpsHz) ** 2],
              [0.0], [0.0], [0.0],
-             [(0.0 * pa.dphpsh) ** 2], [(0.0 * pa.dphpsh) ** 2], [(0.0 * pa.dphpsh) ** 2],
-             [(0.0 * pa.ugpsh) ** 2], [(0.0 * pa.ugpsh) ** 2], [(0.0 * pa.ugpsh) ** 2]
+             [(0.0 * glv.dphpsh) ** 2], [(0.0 * glv.dphpsh) ** 2], [(0.0 * glv.dphpsh) ** 2],
+             [(0.0 * glv.ugpsh) ** 2], [(0.0 * glv.ugpsh) ** 2], [(0.0 * glv.ugpsh) ** 2]
              ]
         )
         self.Rt = np.array(
             [[0.2 ** 2], [0.2 ** 2], [0.6 ** 2],
-             [(10.0 / pa.Re) ** 2], [(10.0 / pa.Re) ** 2], [30.0 ** 2]
+             [(10.0 / glv.Re) ** 2], [(10.0 / glv.Re) ** 2], [30.0 ** 2]
              ]
         )
         self.FBTau = np.array(
@@ -340,32 +340,32 @@ class CKalman(object):
         self.measGPSVn = np.array([[0.0]] * 3)
         self.measGPSPos = np.array([[0.0]] * 3)
         self.Pmax = np.array(
-            [[(10.0 * pa.deg) ** 2], [(10.0 * pa.deg) ** 2], [(30.0 * pa.deg) ** 2],
+            [[(10.0 * glv.deg) ** 2], [(10.0 * glv.deg) ** 2], [(30.0 * glv.deg) ** 2],
              [50 ** 2], [50 ** 2], [50 ** 2],
-             [(1.0e4 / pa.Re) ** 2], [(1.0e4 / pa.Re) ** 2], [1.0e4 ** 2],
-             [(1000 * pa.dph) ** 2], [(1000 * pa.dph) ** 2], [(1000 * pa.dph) ** 2],
-             [(100 * pa.mg) ** 2], [(100 * pa.mg) ** 2], [(100 * pa.mg) ** 2]
+             [(1.0e4 / glv.Re) ** 2], [(1.0e4 / glv.Re) ** 2], [1.0e4 ** 2],
+             [(1000 * glv.dph) ** 2], [(1000 * glv.dph) ** 2], [(1000 * glv.dph) ** 2],
+             [(100 * glv.mg) ** 2], [(100 * glv.mg) ** 2], [(100 * glv.mg) ** 2]
              ]
         )
         self.Pmin = np.array(
-            [[(1 * pa.min) ** 2], [(1 * pa.min) ** 2], [(1 * pa.min) ** 2],
+            [[(1 * glv.min) ** 2], [(1 * glv.min) ** 2], [(1 * glv.min) ** 2],
              [0.01 ** 2], [0.01 ** 2], [0.1 ** 2],
-             [(1.0 / pa.Re) ** 2], [(1.0 / pa.Re) ** 2], [1.0 ** 2],
-             [(1.0 * pa.dph) ** 2], [(1.0 * pa.dph) ** 2], [(1.0 * pa.dph) ** 2],
-             [(0.1 * pa.mg) ** 2], [(0.1 * pa.mg) ** 2], [(0.1 * pa.mg) ** 2]
+             [(1.0 / glv.Re) ** 2], [(1.0 / glv.Re) ** 2], [1.0 ** 2],
+             [(1.0 * glv.dph) ** 2], [(1.0 * glv.dph) ** 2], [(1.0 * glv.dph) ** 2],
+             [(0.1 * glv.mg) ** 2], [(0.1 * glv.mg) ** 2], [(0.1 * glv.mg) ** 2]
              ]
         )
         self.Pk = np.mat(np.diagflat(
-            [(1.0 * pa.deg) ** 2, (1.0 * pa.deg) ** 2, (30.0 * pa.deg) ** 2,
+            [(1.0 * glv.deg) ** 2, (1.0 * glv.deg) ** 2, (30.0 * glv.deg) ** 2,
              1.0, 1.0, 1.0,
-             (100.0 / pa.Re) ** 2, (100.0 / pa.Re) ** 2, 100.0 ** 2,
-             (100.0 * pa.dph) ** 2, (100.0 * pa.dph) ** 2, (100.0 * pa.dph) ** 2,
-             (10.0 * pa.mg) ** 2, (10.0 * pa.mg) ** 2, (10.0 * pa.mg) ** 2
+             (100.0 / glv.Re) ** 2, (100.0 / glv.Re) ** 2, 100.0 ** 2,
+             (100.0 * glv.dph) ** 2, (100.0 * glv.dph) ** 2, (100.0 * glv.dph) ** 2,
+             (10.0 * glv.mg) ** 2, (10.0 * glv.mg) ** 2, (10.0 * glv.mg) ** 2
              ])
         )
         self.Qt = np.array(
-            [[(1.0 * pa.dpsh) ** 2], [(1.0 * pa.dpsh) ** 2], [(1.0 * pa.dpsh) ** 2],
-             [(100.0 * pa.ugpsHz) ** 2], [(100.0 * pa.ugpsHz) ** 2], [(100.0 * pa.ugpsHz) ** 2],
+            [[(1.0 * glv.dpsh) ** 2], [(1.0 * glv.dpsh) ** 2], [(1.0 * glv.dpsh) ** 2],
+             [(100.0 * glv.ugpsHz) ** 2], [(100.0 * glv.ugpsHz) ** 2], [(100.0 * glv.ugpsHz) ** 2],
              [0.0], [0.0], [0.0],
              [0.0], [0.0], [0.0],
              [0.0], [0.0], [0.0]
@@ -373,7 +373,7 @@ class CKalman(object):
         )
         self.Rt = np.array(
             [[0.5 ** 2], [0.5 ** 2], [0.5 ** 2],
-             [(10.0 / pa.Re) ** 2], [(10.0 / pa.Re) ** 2], [10.0 ** 2]
+             [(10.0 / glv.Re) ** 2], [(10.0 / glv.Re) ** 2], [10.0 ** 2]
              ]
         )
         self.Rmax = self.Rt * 100
@@ -383,8 +383,8 @@ class CKalman(object):
             [1.0, 1.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
         ).reshape(-1, 1)
         self.FBMax = np.array(
-            [INF, INF, INF, INF, INF, INF, INF, INF, INF, 3000.0 * pa.dph, 3000.0 * pa.dph, 3000.0 * pa.dph,
-             50.0 * pa.mg, 50.0 * pa.mg, 50.0 * pa.mg]).reshape(-1, 1)
+            [INF, INF, INF, INF, INF, INF, INF, INF, INF, 3000.0 * glv.dph, 3000.0 * glv.dph, 3000.0 * glv.dph,
+             50.0 * glv.mg, 50.0 * glv.mg, 50.0 * glv.mg]).reshape(-1, 1)
 
     def SetFt(self):
         self.sins.etm()
@@ -408,15 +408,15 @@ class CKalman(object):
                 [self.sins.Mva[0, 0], self.sins.Mva[0, 1], self.sins.Mva[0, 2], self.sins.Mvv[0, 0],
                  self.sins.Mvv[0, 1],
                  self.sins.Mvv[0, 2], self.sins.Mvp[0, 0], self.sins.Mvp[0, 1], self.sins.Mvp[0, 2], 0.0, 0.0, 0.0,
-                 -self.sins.Cnb[0, 0], -self.sins.Cnb[0, 1], -self.sins.Cnb[0, 2]],
+                 self.sins.Cnb[0, 0], self.sins.Cnb[0, 1], self.sins.Cnb[0, 2]],
                 [self.sins.Mva[1, 0], self.sins.Mva[1, 1], self.sins.Mva[1, 2], self.sins.Mvv[1, 0],
                  self.sins.Mvv[1, 1],
                  self.sins.Mvv[1, 2], self.sins.Mvp[1, 0], self.sins.Mvp[1, 1], self.sins.Mvp[1, 2], 0.0, 0.0, 0.0,
-                 -self.sins.Cnb[1, 0], -self.sins.Cnb[1, 1], -self.sins.Cnb[1, 2]],
+                 self.sins.Cnb[1, 0], self.sins.Cnb[1, 1], self.sins.Cnb[1, 2]],
                 [self.sins.Mva[2, 0], self.sins.Mva[2, 1], self.sins.Mva[2, 2], self.sins.Mvv[2, 0],
                  self.sins.Mvv[2, 1],
                  self.sins.Mvv[2, 2], self.sins.Mvp[2, 0], self.sins.Mvp[2, 1], self.sins.Mvp[2, 2], 0.0, 0.0, 0.0,
-                 -self.sins.Cnb[2, 0], -self.sins.Cnb[2, 1], -self.sins.Cnb[2, 2]],
+                 self.sins.Cnb[2, 0], self.sins.Cnb[2, 1], self.sins.Cnb[2, 2]],
                 [0.0, 0.0, 0.0, self.sins.Mpv[0, 0], self.sins.Mpv[0, 1], self.sins.Mpv[0, 2], self.sins.Mpp[0, 0],
                  self.sins.Mpp[0, 1], self.sins.Mpp[0, 2], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                 [0.0, 0.0, 0.0, self.sins.Mpv[1, 0], self.sins.Mpv[1, 1], self.sins.Mpv[1, 2], self.sins.Mpp[1, 0],

@@ -1,5 +1,12 @@
 from math import *
 import numpy as np
+import VDR.MEMS_VDR.Parameter as glv
+
+conefactors = [[2.0 / 3.0, 0.0, 0.0, 0.0],
+               [9.0 / 20.0, 27.0 / 20.0, 0.0, 0.0],
+               [54.0 / 105.0, 92.0 / 105.0, 214.0 / 105.0, 0.0],
+               [250.0 / 504.0, 525.0 / 504.0, 650.0 / 504.0, 1375.0 / 504.0],
+               [0.0, 0.0, 0.0, 0.0]]
 
 
 def M2Q(Cnb):
@@ -253,9 +260,66 @@ def dv2att(va1, va2, vb1, vb2):
     Ma = np.mat([[va1[0, 0], va1[1, 0], va1[2, 0]],
                  [a[0, 0], a[1, 0], a[2, 0]],
                  [aa[0, 0], aa[1, 0], aa[2, 0]]])
-    
+
     Mb = np.mat([[vb1[0, 0], vb1[1, 0], vb1[2, 0]],
                  [b[0, 0], b[1, 0], b[2, 0]],
                  [bb[0, 0], bb[1, 0], bb[2, 0]]])
 
     return Ma.T * Mb
+
+
+# 根据经纬度计算距离
+def distance_by_LoLa(Lo1, La1, Lo2, La2):
+    Er = 6378137.0
+    radLa1 = radians(La1)
+    radLa2 = radians(La2)
+    deltaLa = radLa1 - radLa2
+    deltaLo = (Lo1 - Lo2) * np.pi / 180.0
+    return 2 * asin(sqrt(pow(sin(deltaLa / 2), 2) + cos(radLa1) * cos(radLa2) * pow(sin(deltaLo / 2), 2))) * Er
+
+
+class CEarth(object):
+    a = b = f = e = e2 = ep = ep2 = wie = sl = sl2 = sl4 = cl = tl = RMh = RNh = clRNh = f_RMh = f_RNh = f_clRNh = 0.0
+    pos = np.array([[0.0]] * 3)
+    vn = np.array([[0.0]] * 3)
+    wnie = np.array([[0.0]] * 3)
+    wnen = np.array([[0.0]] * 3)
+    wnin = np.array([[0.0]] * 3)
+    gn = np.array([[0.0]] * 3)
+    gcc = np.array([[0.0]] * 3)
+
+    def __init__(self, a0=glv.Re, f0=glv.f, g0=glv.g0):
+        self.a = a0
+        self.f = f0
+        self.wie = glv.wie
+        self.b = (1 - self.f) * self.a
+        self.e = sqrt(self.a * self.a - self.b * self.b) / self.a
+        self.e2 = self.e * self.e
+        self.gn = np.array([[0], [0], [-glv.g0]])
+
+    def Update(self, pos, vn=np.array([[0.0]] * 3)):
+        self.pos = pos
+        self.vn = vn
+        self.sl, self.cl = sin(pos[0, 0]), cos(pos[0, 0])
+        self.tl = self.sl / self.cl
+        sq = 1 - self.e2 * self.sl * self.sl
+        sq2 = sqrt(sq)
+        self.RMh = self.a * (1 - self.e2) / sq / sq2 + pos[2, 0]
+        self.f_RMh = 1.0 / self.RMh
+        self.RNh = self.a / sq2 + pos[2, 0]
+        self.clRNh = self.cl * self.RNh
+        self.f_RNh = 1.0 / self.RNh
+        self.f_clRNh = 1.0 / self.clRNh
+        self.wnie[0, 0], self.wnie[1, 0], self.wnie[2, 0] = 0.0, self.wie * self.cl, self.wie * self.sl
+        self.wnen[0, 0], self.wnen[1, 0] = -vn[1, 0] * self.f_RMh, vn[0, 0] * self.f_RNh,
+        self.wnen[2, 0] = self.wnen[1, 0] * self.tl
+        self.wnin = self.wnie + self.wnen
+        self.sl2 = self.sl * self.sl
+        self.sl4 = self.sl2 * self.sl2
+        self.gn[2, 0] = -(glv.g0 * (1 + 5.27094e-3 * self.sl2 + 2.32718e-5 * self.sl4) - 3.086e-6 * pos[2, 0])
+        self.gcc = self.gn - cross((self.wnie + self.wnin), vn)
+
+    def vn2pos(self, vn, ts=1.0):
+        return np.array([[vn[1, 0] * self.f_RMh],
+                         [vn[0, 0] * self.f_clRNh],
+                         [vn[2, 0]]]) * ts
